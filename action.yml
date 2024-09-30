@@ -24,15 +24,11 @@ runs:
     run: |
       ACTOR=${{ github.actor }}
       USER_EMAIL=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR | jq -r .email)
-      echo $USER_EMAIL
-      VERIFIED_USER_EMAIL=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR | jq -r '.[] | select(.verified == true) | .email')
-      echo $VERIFIED_USER_EMAIL
-      USER_EMAILS=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR/emails | jq -r '.[] | select(.verified == true) | .email')
 
-      patriot_emails=$(echo "$USER_EMAILS" | grep -i "@patriotsoftware.com")
+      patriot_email=$(echo "$USER_EMAIL" | grep -i "@patriotsoftware.com")
 
-      if [ -z "$patriot_emails" ]; then
-        echo "No Patriot email address found for user $ACTOR. Using committer."
+      if [ "$USER_EMAIL" == "null" ] || [ -z "$patriot_email"]; then
+        echo "No Patriot email address found for user $ACTOR $USER_EMAIL Using committer."
         echo "address=committer" >> $GITHUB_OUTPUT
       else
         echo "Patriot email(s) for the user $ACTOR: $patriot_emails"
