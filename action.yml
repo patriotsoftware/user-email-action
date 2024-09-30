@@ -1,0 +1,38 @@
+name: User Email Action
+author: DevOps
+description: Attempts to retrieve an email address associated with the user running the workflow
+
+inputs:
+  token: 
+    description: 'GitHub token'
+
+outputs:
+  email:
+    description: 'Resulting email address. Default is committer.'
+    value: ${{ steps.email.outputs.address }}
+
+runs:
+  using: 'composite'
+  steps:
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0 # Fetch all history for all branches and tags
+
+  - name: Get email(s) associated with user
+    id: email
+    shell: bash
+    run: |
+      ACTOR=${{ github.actor }}
+      
+      USER_EMAILS=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
+                    https://api.github.com/users/$ACTOR/emails | jq -r '.[] | select(.verified == true) | .email')
+
+      patriot_emails=$(echo "$USER_EMAILS" | grep -i "@patriotsoftware.com")
+
+      if [ -z "$patriot_emails" ]; then
+        echo "No Patriot email address found for user $ACTOR. Using committer."
+        echo "address=committer" >> $GITHUB_OUTPUT
+      else
+        echo "Patriot email(s) for the user $ACTOR: $patriot_emails"
+        echo "address=patriot_emails" >> $GITHUB_OUTPUT
+      fi
