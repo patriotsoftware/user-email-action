@@ -23,9 +23,11 @@ runs:
     shell: bash
     run: |
       ACTOR=${{ github.actor }}
-      
-      USER_EMAILS=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
-                    https://api.github.com/users/$ACTOR/emails | jq -r '.[] | select(.verified == true) | .email')
+      USER_EMAIL=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR | jq -r .email)
+      echo $USER_EMAIL
+      VERIFIED_USER_EMAIL=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR | jq -r '.[] | select(.verified == true) | .email')
+      echo $VERIFIED_USER_EMAIL
+      USER_EMAILS=$(curl -s -H "Authorization: token ${{ inputs.token }}" https://api.github.com/users/$ACTOR/emails | jq -r '.[] | select(.verified == true) | .email')
 
       patriot_emails=$(echo "$USER_EMAILS" | grep -i "@patriotsoftware.com")
 
