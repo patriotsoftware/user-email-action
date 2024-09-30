@@ -34,5 +34,5 @@ runs:
         echo "address=committer" >> $GITHUB_OUTPUT
       else
         echo "Patriot email(s) for the user $ACTOR: $patriot_emails"
-        echo "address=patriot_emails" >> $GITHUB_OUTPUT
+        echo "address=$patriot_emails" >> $GITHUB_OUTPUT
       fi
